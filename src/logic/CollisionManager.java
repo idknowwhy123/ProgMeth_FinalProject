@@ -1,4 +1,4 @@
-package gameLogic;
+package logic;
 
 import java.util.List;
 import component.Bullet;

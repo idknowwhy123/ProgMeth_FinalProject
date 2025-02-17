@@ -31,6 +31,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+    	
         Pane root = new Pane();
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         gc = canvas.getGraphicsContext2D();
@@ -56,8 +57,8 @@ public class Main extends Application {
             }
         }).start();
 
-        gameLoop = new GameLoop(this, gc); // Initialize GameLoop
-        gameLoop.start(); // Start the game loop
+        gameLoop = new GameLoop(this, gc);
+        gameLoop.start();
 
         primaryStage.setTitle("Chicken Invaders");
         primaryStage.setScene(scene);
@@ -65,6 +66,7 @@ public class Main extends Application {
     }
 
     public void update() {
+    	
         player.update();
         bullets.removeIf(b -> !b.update());
         chickens.removeIf(c -> c.update(bullets));

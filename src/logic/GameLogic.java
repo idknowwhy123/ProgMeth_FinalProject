@@ -1,4 +1,4 @@
-package gameLogic;
+package logic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,17 +31,12 @@ public class GameLogic {
     }
 
     public void update() {
-        // Update player
+      
         player.update();
-
-        // Update bullets
         bullets.removeIf(b -> !b.update());
-
-        // Update chickens and check for collisions
         chickens.removeIf(c -> c.update(bullets));
         collisionManager.checkCollisions(bullets, chickens);
 
-        // Spawn new enemies periodically
         enemySpawnTimer++;
         if (enemySpawnTimer > 120) {
             chickens.addAll(spawner.spawnEnemies(3, WIDTH));
@@ -50,7 +45,7 @@ public class GameLogic {
     }
 
     public void render(GraphicsContext gc) {
-        // Render the game objects
+   
         player.render(gc);
         bullets.forEach(b -> b.render(gc));
         chickens.forEach(c -> c.render(gc));
