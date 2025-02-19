@@ -24,9 +24,7 @@ public class Bullet {
     }
 
     public boolean update() {
-    	
         y -= SPEED;
-        
         frameCounter++;
         if (frameCounter >= FRAME_DELAY) {
             frameCounter = 0;
@@ -47,7 +45,4 @@ public class Bullet {
         return y;
     }
     
-    public Rectangle getBounds() {
-        return new Rectangle(x, y, 35, 35);
-    }
 }

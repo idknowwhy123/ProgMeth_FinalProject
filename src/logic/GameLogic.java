@@ -6,70 +6,69 @@ import component.Bullet;
 import component.Chicken;
 import component.PlayerShip;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class GameLogic {
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
-    private PlayerShip player;
-    public static List<Bullet> bullets;
-    private List<Chicken> chickens;
-    private Spawner spawner;
-    private CollisionManager collisionManager;
-    private int enemySpawnTimer;
 
-    public GameLogic() {
-        bullets = new ArrayList<>();
-        chickens = new ArrayList<>();
-        spawner = new Spawner();
-        collisionManager = new CollisionManager();
-        enemySpawnTimer = 0;
-    }
+	private static final int WIDTH = 800;
+	private static final int HEIGHT = 600;
+	private static PlayerShip player;
+	public static List<Bullet> bullets = new ArrayList<>();
+	private static List<Chicken> chickens = new ArrayList<>();
+	private static Spawner spawner = new Spawner();
+	
+	private static int enemySpawnTimer = 0;
 
-    public void init(PlayerShip player) {
-        this.player = player;
-        chickens.addAll(spawner.spawnEnemies(5, WIDTH));
-    }
+	public static void init(PlayerShip playerShip) {
+		player = playerShip;
+		chickens.addAll(spawner.spawnEnemies(5, WIDTH));
+	}
 
-    public void update() {
-      
-        player.update();
-        bullets.removeIf(b -> !b.update());
-        chickens.removeIf(c -> c.update(bullets));
-        collisionManager.checkCollisions(bullets, chickens);
+	public static void update() {
 
-        enemySpawnTimer++;
-        if (enemySpawnTimer > 120) {
-            chickens.addAll(spawner.spawnEnemies(3, WIDTH));
-            enemySpawnTimer = 0;
-        }
-    }
+		player.update();
+		bullets.removeIf(b -> !b.update());
+		for(Chicken x : chickens) {
+			x.update();
+		}
+		CollisionManager.checkCollisions(bullets, chickens);
 
-    public void render(GraphicsContext gc) {
-   
-        player.render(gc);
-        bullets.forEach(b -> b.render(gc));
-        chickens.forEach(c -> c.render(gc));
-    }
+		enemySpawnTimer++;
+		if (enemySpawnTimer > 120) {
+			chickens.addAll(spawner.spawnEnemies(3, WIDTH));
+			enemySpawnTimer = 0;
+		}
+		
+	}
 
-    public static void addBullet(Bullet bullet) {
-        bullets.add(bullet);
-    }
-    
-    public static void updateBullets() {
-        bullets.removeIf(bullet -> !bullet.update()); // Remove bullets that are off-screen
-    }
-    
-    public static void renderBullets(GraphicsContext gc) {
-        for (Bullet bullet : bullets) {
-            bullet.render(gc);
-        }
-    }
+	public static void render(GraphicsContext gc) {
+		gc.clearRect(0, 0, WIDTH, HEIGHT);
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, WIDTH, HEIGHT);
+		player.render(gc);
+		bullets.forEach(b -> b.render(gc));
+		chickens.forEach(c -> c.render(gc));
+	}
 
-    public List<Bullet> getBullets() {
-        return bullets;
-    }
+	public static void addBullet(Bullet bullet) {
+		bullets.add(bullet);
+	}
 
-    public List<Chicken> getChickens() {
-        return chickens;
-    }
+	public static void updateBullets() {
+		bullets.removeIf(bullet -> !bullet.update()); // Remove bullets that are off-screen
+	}
+
+	public static void renderBullets(GraphicsContext gc) {
+		for (Bullet bullet : bullets) {
+			bullet.render(gc);
+		}
+	}
+
+	public static List<Bullet> getBullets() {
+		return bullets;
+	}
+
+	public static List<Chicken> getChickens() {
+		return chickens;
+	}
 }

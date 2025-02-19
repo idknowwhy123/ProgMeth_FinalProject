@@ -1,26 +1,21 @@
 package component;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-
-import java.util.List;
+import javafx.scene.image.Image;
 
 public class Chicken {
+	
     private double x, y;
+    private Image enemyImage;
 
     public Chicken(double x, double y) {
         this.x = x;
         this.y = y;
+        this.enemyImage = new Image("Banana.png");
     }
 
-    public boolean update(List<Bullet> bullets) {
-        for (Bullet b : bullets) {
-            if (b != null && x < b.getX() + 35 && x + 50 > b.getX() && y < b.getY() + 35 && y + 50 > b.getY()) {
-                return true;
-            }
-        }
-        return false;
+    public void update() {
+    	move();
     }
 
     public double getX() {
@@ -44,11 +39,7 @@ public class Chicken {
     }
 
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.RED);
-        gc.fillOval(x, y, 50, 50);
+        gc.drawImage(enemyImage, x, y,50,50);
     }
     
-    public Rectangle getBounds() {
-        return new Rectangle(x, y, 50, 50); // A 35x35 rectangle representing the bullet's area
-    }
 }
