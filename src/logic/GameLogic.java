@@ -12,8 +12,9 @@ public class GameLogic {
 
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
+	
 	private static PlayerShip player;
-	public static List<Bullet> bullets = new ArrayList<>();
+	private static List<Bullet> bullets = new ArrayList<>();
 	private static List<Chicken> chickens = new ArrayList<>();
 	private static Spawner spawner = new Spawner();
 	
@@ -70,5 +71,13 @@ public class GameLogic {
 
 	public static List<Chicken> getChickens() {
 		return chickens;
+	}
+	
+	public static int getWidth() {
+		return WIDTH;
+	}
+
+	public static int getHeight() {
+		return HEIGHT;
 	}
 }

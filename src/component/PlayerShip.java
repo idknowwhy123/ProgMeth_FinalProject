@@ -10,8 +10,16 @@ public class PlayerShip {
 	private double x, y;
 	private boolean left, right, up, down;
 	private long lastShotTime = 0;
-	private static final long SHOOT_INTERVAL = 200;
 	private Image shipImage;
+	
+	private static final long SHOOT_INTERVAL = 200;
+	private static final int WIDTH = 100;
+	private static final int HEIGHT = 100;
+	private static final int SPEED = 5;
+
+	private static final int SCENE_WIDTH = GameLogic.getWidth();
+	private static final int SCENE_HEIGHT = GameLogic.getHeight();
+
 
 	public PlayerShip(double x, double y) {
 		this.x = x;
@@ -20,15 +28,15 @@ public class PlayerShip {
 	}
 
 	public void update() {
-
-		if (left)
-			x -= 5;
-		if (right)
-			x += 5;
-		if (up)
-			y -= 5;
-		if (down)
-			y += 5;
+		// Check boundaries before updating position
+		if (left && x > 0)
+			x -= SPEED;
+		if (right && x < SCENE_WIDTH - WIDTH)
+			x += SPEED;
+		if (up && y > 0)
+			y -= SPEED;
+		if (down && y < SCENE_HEIGHT - HEIGHT)
+			y += SPEED;
 
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastShotTime > SHOOT_INTERVAL) {
@@ -38,11 +46,11 @@ public class PlayerShip {
 	}
 
 	public void render(GraphicsContext gc) {
-		gc.drawImage(shipImage, x, y, 100, 100);
+		gc.drawImage(shipImage, x, y, WIDTH, HEIGHT);
 	}
 
 	private void shoot() {
-		GameLogic.addBullet(new Bullet(x + 20, y));
+		GameLogic.addBullet(new Bullet(x + WIDTH / 2, y));
 	}
 
 	public void handleKeyPress(KeyCode key) {
@@ -50,9 +58,9 @@ public class PlayerShip {
 			left = true;
 		if (key == KeyCode.RIGHT || key == KeyCode.D)
 			right = true;
-		if(key == KeyCode.W || key == KeyCode.UP)
+		if (key == KeyCode.W || key == KeyCode.UP)
 			up = true;
-		if(key == KeyCode.S || key == KeyCode.DOWN)
+		if (key == KeyCode.S || key == KeyCode.DOWN)
 			down = true;
 	}
 
@@ -61,11 +69,9 @@ public class PlayerShip {
 			left = false;
 		if (key == KeyCode.RIGHT || key == KeyCode.D)
 			right = false;
-		if(key == KeyCode.W || key == KeyCode.UP)
+		if (key == KeyCode.W || key == KeyCode.UP)
 			up = false;
-		if(key == KeyCode.S || key == KeyCode.DOWN)
+		if (key == KeyCode.S || key == KeyCode.DOWN)
 			down = false;
 	}
-
-	
 }
