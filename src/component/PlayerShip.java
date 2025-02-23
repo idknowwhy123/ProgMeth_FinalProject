@@ -1,13 +1,14 @@
 package component;
 
+import base.component.BaseComponent;
+import base.component.Collidable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import logic.GameLogic;
+import logic.Spawner;
 
-public class PlayerShip {
-
-	private double x, y;
+public class PlayerShip extends BaseComponent{
 	private boolean left, right, up, down;
 	private long lastShotTime = 0;
 	private Image shipImage;
@@ -22,21 +23,19 @@ public class PlayerShip {
 
 
 	public PlayerShip(double x, double y) {
-		this.x = x;
-		this.y = y;
+		super(x, y);
 		this.shipImage = new Image("MonkeyShip.png");
 	}
 
 	public void update() {
-		// Check boundaries before updating position
-		if (left && x > 0)
-			x -= SPEED;
-		if (right && x < SCENE_WIDTH - WIDTH)
-			x += SPEED;
-		if (up && y > 0)
-			y -= SPEED;
-		if (down && y < SCENE_HEIGHT - HEIGHT)
-			y += SPEED;
+		if (left)
+			setX(getX()-5);
+		if (right)
+			setX(getX()+5);
+		if (up)
+			setY(getY()-5);
+		if (down)
+			setY(getY()+5);
 
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastShotTime > SHOOT_INTERVAL) {
@@ -46,11 +45,12 @@ public class PlayerShip {
 	}
 
 	public void render(GraphicsContext gc) {
-		gc.drawImage(shipImage, x, y, WIDTH, HEIGHT);
+	gc.drawImage(shipImage, getX(), getY(), 100, 100);
 	}
 
+
 	private void shoot() {
-		GameLogic.addBullet(new Bullet(x + WIDTH / 2, y));
+		GameLogic.addBullet(new Bullet(getX() + 20, getY()));
 	}
 
 	public void handleKeyPress(KeyCode key) {
@@ -62,6 +62,11 @@ public class PlayerShip {
 			up = true;
 		if (key == KeyCode.S || key == KeyCode.DOWN)
 			down = true;
+		
+		if(key == KeyCode.EQUALS) {
+			GameLogic.getChickens().addAll(Spawner.spawnWave());
+			GameLogic.setGameOver(true);
+		}
 	}
 
 	public void handleKeyRelease(KeyCode key) {

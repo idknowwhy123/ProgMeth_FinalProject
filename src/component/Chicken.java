@@ -1,45 +1,19 @@
 package component;
 
-import javafx.scene.canvas.GraphicsContext;
+import base.component.Monster;
 import javafx.scene.image.Image;
 
-public class Chicken {
-	
-    private double x, y;
-    private Image enemyImage;
+public class Chicken extends Monster{
 
-    public Chicken(double x, double y) {
-        this.x = x;
-        this.y = y;
-        this.enemyImage = new Image("Banana.png");
-    }
-
-    public void update() {
-    	move();
-    }
-
-    public double getX() {
-		return x;
+	public Chicken(double x, double y) {
+		super(x, y,new Image("Banana.png"));
+		// TODO Auto-generated constructor stub
 	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	public double getY() {
-		return y;
-	}
-
-	public void setY(double y) {
-		this.y = y;
-	}
-
+	@Override
 	public void move() {
-        y += 2;
-    }
+		// TODO Auto-generated method stub
+		
+	}
 
-    public void render(GraphicsContext gc) {
-        gc.drawImage(enemyImage, x, y,50,50);
-    }
-    
 }

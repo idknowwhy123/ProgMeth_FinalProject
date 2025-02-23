@@ -1,17 +1,13 @@
 package base.component;
 
-import javafx.scene.image.Image;
-
 public class BaseComponent {
 
 	private double x,y;
-	private Image baseImage;
 	
-	public BaseComponent(double x, double y, String strImage) {
+	public BaseComponent(double x, double y) {
 		super();
 		this.x = x;
 		this.y = y;
-		this.setBaseImage(new Image(strImage));
 	}
 	
 	public double getX() {
@@ -25,14 +21,6 @@ public class BaseComponent {
 	}
 	public void setY(double y) {
 		this.y = y;
-	}
-
-	public Image getBaseImage() {
-		return baseImage;
-	}
-
-	public void setBaseImage(Image baseImage) {
-		this.baseImage = baseImage;
 	}
 	
 }

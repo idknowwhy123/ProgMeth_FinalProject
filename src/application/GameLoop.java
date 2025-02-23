@@ -1,27 +1,64 @@
 package application;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.util.Duration;
 import logic.GameLogic;
 
-public class GameLoop {
-	
-    private Timeline timeline;
-    private GraphicsContext gc;
+public class GameLoop implements Runnable {
 
-    public GameLoop(GraphicsContext gc) {
+    private GraphicsContext gc;
+    
+    private volatile boolean running = true;
+    
+    private Thread thread;
+    private Runnable onGameOver; // Callback for game over
+
+    public GameLoop(GraphicsContext gc, Runnable onGameOver) {
         this.gc = gc;
-        this.timeline = new Timeline(new KeyFrame(Duration.millis(16), e -> {
-            update();
-            render();
-        }));
-        this.timeline.setCycleCount(Timeline.INDEFINITE);
+        this.onGameOver = onGameOver;
     }
 
     public void start() {
-        this.timeline.play();
+    	running = true;
+    	GameLogic.setGameOver(false);
+        thread = new Thread(this);
+        thread.start();
+    }
+
+    public void stop() {
+        running = false;
+    }
+
+    @Override
+    public void run() {
+        final int FPS = 60;
+        final long frameTime = 1_000_000_000 / FPS;
+
+        while (running) {
+        	
+            long startTime = System.nanoTime();
+
+            update();
+            Platform.runLater(this::render);
+
+            // Check if the player lost the game
+            if (GameLogic.isGameOver()) {  
+                stop();
+                Platform.runLater(onGameOver); // Show Game Over screen on UI thread
+                return;
+            }
+
+            long elapsedTime = System.nanoTime() - startTime;
+            long sleepTime = frameTime - elapsedTime;
+
+            if (sleepTime > 0) {
+                try {
+                    Thread.sleep(sleepTime / 1_000_000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     private void update() {
@@ -31,4 +68,6 @@ public class GameLoop {
     private void render() {
         GameLogic.render(gc);
     }
+    
+
 }
