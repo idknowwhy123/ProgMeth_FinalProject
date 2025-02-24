@@ -1,26 +1,19 @@
 package component;
 
 import base.component.BaseComponent;
-import base.component.Collidable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import logic.GameLogic;
 import logic.Spawner;
 
-public class PlayerShip extends BaseComponent{
+public class PlayerShip extends BaseComponent {
 	private boolean left, right, up, down;
 	private long lastShotTime = 0;
 	private Image shipImage;
-	
+
 	private static final long SHOOT_INTERVAL = 200;
-	private static final int WIDTH = 100;
-	private static final int HEIGHT = 100;
 	private static final int SPEED = 5;
-
-	private static final int SCENE_WIDTH = GameLogic.getWidth();
-	private static final int SCENE_HEIGHT = GameLogic.getHeight();
-
 
 	public PlayerShip(double x, double y) {
 		super(x, y);
@@ -28,15 +21,14 @@ public class PlayerShip extends BaseComponent{
 	}
 
 	public void update() {
-		if (left)
-			setX(getX()-5);
-		if (right)
-			setX(getX()+5);
-		if (up)
-			setY(getY()-5);
-		if (down)
-			setY(getY()+5);
-
+		if (left && getX() - SPEED >= 0)
+			setX(getX() - SPEED);
+		if (right && getX() + SPEED <= GameLogic.getWidth()-100)
+			setX(getX() + SPEED);
+		if (up && getY() - SPEED >= 0)
+			setY(getY() - SPEED);
+		if (down && getY() + SPEED <= GameLogic.getHeight()-100)
+			setY(getY() + SPEED);
 		long currentTime = System.currentTimeMillis();
 		if (currentTime - lastShotTime > SHOOT_INTERVAL) {
 			shoot();
@@ -45,38 +37,32 @@ public class PlayerShip extends BaseComponent{
 	}
 
 	public void render(GraphicsContext gc) {
-	gc.drawImage(shipImage, getX(), getY(), 100, 100);
+		gc.drawImage(shipImage, getX(), getY(), 100, 100);
 	}
-
 
 	private void shoot() {
 		GameLogic.addBullet(new Bullet(getX() + 20, getY()));
 	}
 
 	public void handleKeyPress(KeyCode key) {
-		if (key == KeyCode.LEFT || key == KeyCode.A)
+		if (key == KeyCode.A)
 			left = true;
-		if (key == KeyCode.RIGHT || key == KeyCode.D)
+		if (key == KeyCode.D)
 			right = true;
-		if (key == KeyCode.W || key == KeyCode.UP)
+		if (key == KeyCode.W)
 			up = true;
-		if (key == KeyCode.S || key == KeyCode.DOWN)
+		if (key == KeyCode.S)
 			down = true;
-		
-		if(key == KeyCode.EQUALS) {
-			GameLogic.getChickens().addAll(Spawner.spawnWave());
-			GameLogic.setGameOver(true);
-		}
 	}
 
 	public void handleKeyRelease(KeyCode key) {
-		if (key == KeyCode.LEFT || key == KeyCode.A)
+		if (key == KeyCode.A)
 			left = false;
-		if (key == KeyCode.RIGHT || key == KeyCode.D)
+		if (key == KeyCode.D)
 			right = false;
-		if (key == KeyCode.W || key == KeyCode.UP)
+		if (key == KeyCode.W)
 			up = false;
-		if (key == KeyCode.S || key == KeyCode.DOWN)
+		if (key == KeyCode.S)
 			down = false;
 	}
 }

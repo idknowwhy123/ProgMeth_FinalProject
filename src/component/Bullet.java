@@ -12,6 +12,7 @@ public class Bullet extends BaseComponent {
     private int imageIndex = 0;  // Track current animation frame
     private int frameCounter = 0; // Track when to switch frames
     private static final int FRAME_DELAY = 5; // Change image every 5 updates
+    private int dmg = 1;
 
     public Bullet(double x, double y) {
         super(x, y);
@@ -34,5 +35,13 @@ public class Bullet extends BaseComponent {
     public void render(GraphicsContext gc) {
         gc.drawImage(bulletImage.get(imageIndex), getX(), getY(), 55, 55);
     }
+
+	public int getDmg() {
+		return dmg;
+	}
+
+	public void setDmg(int dmg) {
+		this.dmg = dmg;
+	}
     
 }
