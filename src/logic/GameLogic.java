@@ -1,78 +1,168 @@
 package logic;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import base.component.BaseComponent;
+import base.component.Enemy;
 import component.Bullet;
-import component.Chicken;
-import component.PlayerShip;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import gui.GameScreen;
 
 public class GameLogic {
+	private static final int WIDTH = 1600;
+	private static final int HEIGHT = 900;
 
-	private static final int WIDTH = 800;
-	private static final int HEIGHT = 600;
-	
-	private static PlayerShip player;
 	private static List<Bullet> bullets = new ArrayList<>();
-	private static List<Chicken> chickens = new ArrayList<>();
-	private static Spawner spawner = new Spawner();
-	
-	private static int enemySpawnTimer = 0;
-
-	public static void init(PlayerShip playerShip) {
-		player = playerShip;
-		chickens.addAll(spawner.spawnEnemies(5, WIDTH));
-	}
-
-	public static void update() {
-
-		player.update();
-		bullets.removeIf(b -> !b.update());
-		for(Chicken x : chickens) {
-			x.update();
-		}
-		CollisionManager.checkCollisions(bullets, chickens);
-
-		enemySpawnTimer++;
-		if (enemySpawnTimer > 120) {
-			chickens.addAll(spawner.spawnEnemies(3, WIDTH));
-			enemySpawnTimer = 0;
-		}
-		
-	}
-
-	public static void render(GraphicsContext gc) {
-		gc.clearRect(0, 0, WIDTH, HEIGHT);
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0, 0, WIDTH, HEIGHT);
-		player.render(gc);
-		bullets.forEach(b -> b.render(gc));
-		chickens.forEach(c -> c.render(gc));
-	}
+	private static List<Enemy> enemies = new ArrayList<>();
 
 	public static void addBullet(Bullet bullet) {
 		bullets.add(bullet);
-	}
-
-	public static void updateBullets() {
-		bullets.removeIf(bullet -> !bullet.update()); // Remove bullets that are off-screen
-	}
-
-	public static void renderBullets(GraphicsContext gc) {
-		for (Bullet bullet : bullets) {
-			bullet.render(gc);
-		}
 	}
 
 	public static List<Bullet> getBullets() {
 		return bullets;
 	}
 
-	public static List<Chicken> getChickens() {
-		return chickens;
+	// for testing
+	public static void addEnemy(Enemy enemy) {
+		enemies.add(enemy);
+	}
+
+	public static boolean inLevel = false;
+	public static boolean isSpawning = false;
+
+	public static void spawnLevel() {
+
+		if (inLevel == false && isSpawning == false) {
+			inLevel = true;
+			isSpawning = true;
+			System.out.println("progress");
+			addAllEnemyByLine(Spawner.spawnSquare());
+
+			
+			
+			
+		}
+
 	}
 	
+	public static Thread spawnThread;
+	public static void addAllEnemyByOne(List<Enemy> toAddEnemies) {
+
+		// use thread for time control
+		spawnThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				for (Enemy enemy : toAddEnemies) {
+					enemies.add(enemy);
+					try {
+						Thread.sleep(450);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		spawnThread.start();
+	}
+
+	public static void addAllEnemyByLine(List<List<Enemy>> toAddEnemies) {
+
+		// use thread for time control
+		spawnThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				for (List<Enemy> enemyLine : toAddEnemies) {
+					for(Enemy enemy:enemyLine) {
+						
+						// For pause game
+						if(GameScreen.isPaused == true) {
+							try {
+								Thread.sleep(3600000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						///////////////
+						
+						enemies.add(enemy);
+						try {
+							Thread.sleep(450);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				isSpawning = false;
+			}
+		});
+		spawnThread.start();
+	}
+
+	public static List<Enemy> getEnemies() {
+		return enemies;
+	}
+
+	public static void updateBullets() {
+		bullets.removeIf(bullet -> !bullet.update()); // Remove bullets off-screen
+	}
+
+	public static void updateEnemies() {
+		enemies.removeIf(enemy -> !enemy.update()); // Remove enemies off-screen
+	}
+
+	public static void checkCollisions() {
+		Iterator<Bullet> bulletIterator = bullets.iterator();
+		while (bulletIterator.hasNext()) {
+			Bullet bullet = bulletIterator.next();
+			Iterator<Enemy> enemyIterator = enemies.iterator();
+
+			while (enemyIterator.hasNext()) {
+				Enemy enemy = enemyIterator.next();
+
+				if (isColliding(bullet, enemy)) {
+					bulletIterator.remove(); // Remove bullet
+					enemy.setHp(enemy.getHp() - bullet.getDmg());
+//					enemyIterator.remove(); // Remove enemy
+					break; // Move to the next bullet
+				}
+				if (enemy.getHp() == 0) {
+					enemyIterator.remove();
+				}
+			}
+		}
+	}
+
+	private static boolean isColliding(BaseComponent a, BaseComponent b) {
+		return a.getX() < b.getX() + 80 && a.getX() + 55 > b.getX() && a.getY() < b.getY() + 80
+				&& a.getY() + 55 > b.getY();
+	}
+
+	public static void updateEndLevel() {
+
+		if (enemies.size()==0 && isSpawning == false) {
+			inLevel = false;
+			Timer timer = new Timer();
+//			System.out.println("Level ended.");
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					
+					GameLogic.spawnLevel();
+					
+					timer.cancel(); // Stop the timer after execution
+				}
+			}, 3000); // Delay of 3 seconds
+			
+		}
+	}
+
 	public static int getWidth() {
 		return WIDTH;
 	}
@@ -80,4 +170,5 @@ public class GameLogic {
 	public static int getHeight() {
 		return HEIGHT;
 	}
+
 }

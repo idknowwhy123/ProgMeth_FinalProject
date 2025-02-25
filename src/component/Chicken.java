@@ -1,45 +1,61 @@
 package component;
 
-import javafx.scene.canvas.GraphicsContext;
+import base.component.Enemy;
+import base.component.SpawnPos;
 import javafx.scene.image.Image;
 
-public class Chicken {
-	
-    private double x, y;
-    private Image enemyImage;
+public class Chicken extends Enemy {
+	private static final double SPEED = 1;
+	private double grad;
+	private double intercept;
 
-    public Chicken(double x, double y) {
-        this.x = x;
-        this.y = y;
-        this.enemyImage = new Image("Banana.png");
-    }
+	public Chicken(double x, double y, double tagX, double tagY, SpawnPos pos) {
+		super(x, y, tagX, tagY, pos, new Image("Banana.png"));
+		this.setHp(3);
 
-    public void update() {
-    	move();
-    }
+		/////// calculate part for spawn move
+		this.grad = (tagY - y) / (tagX - x);
+		switch (this.getSpawnFrom()) {
+		case LEFT:
+			intercept = tagY - grad*tagX;
+			break;
 
-    public double getX() {
-		return x;
+		default:
+			break;
+		}
 	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	public double getY() {
-		return y;
-	}
-
-	public void setY(double y) {
-		this.y = y;
-	}
-
+	@Override
 	public void move() {
-        y += 2;
-    }
+		switch (this.getState()) {
+		case SPAWN:
+			moveTo();
+			break;
+		case HOLD:
+			moveSet();
+			break;
+		case DESPAWN:
+			moveDown();
+			break;
+		}
+	}
 
-    public void render(GraphicsContext gc) {
-        gc.drawImage(enemyImage, x, y,50,50);
-    }
-    
+	@Override
+	public void moveTo() {
+		setX(getX() + SPEED);
+		setY(grad * getX() + intercept);
+
+	}
+
+	@Override
+	public void moveSet() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void moveDown() {
+		setY(getY() + SPEED);
+	}
+
 }
