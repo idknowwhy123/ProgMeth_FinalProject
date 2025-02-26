@@ -18,6 +18,7 @@ public class PlayerShip extends BaseComponent {
 	public PlayerShip(double x, double y) {
 		super(x, y);
 		this.shipImage = new Image("MonkeyShip.png");
+		this.setHp(5);
 	}
 
 	public void update() {

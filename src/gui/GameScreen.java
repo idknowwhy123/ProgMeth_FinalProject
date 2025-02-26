@@ -51,7 +51,7 @@ public class GameScreen {
 			public void handle(long now) {
 				update();
 				render();
-				if(GameLogic.isGameOver()) {
+				if (GameLogic.isGameOver()) {
 					gameApp.showGameOverScreen();
 					gameLoop.stop();
 					GameLogic.setGameOver(false);
@@ -91,8 +91,11 @@ public class GameScreen {
 		GameLogic.updateEnemies();
 		GameLogic.checkBulletCollisions();
 		GameLogic.checkPlayerCollisions();
+		
 		GameLogic.updateEndLevel();
 	}
+
+	private double healthBarWidth = 200; // Full width of health bar
 
 	private void render() {
 		gc.clearRect(0, 0, GameLogic.getWidth(), GameLogic.getHeight()); // Clear the screen
@@ -107,11 +110,27 @@ public class GameScreen {
 		for (Enemy enemy : GameLogic.getEnemies()) {
 			enemy.render(gc);
 		}
-		
-		gc.setFill(Color.WHITE);
-	    gc.setFont(new Font(30));
-	    gc.fillText("Score: " + GameLogic.getScore(), 20, 40);
 
+		// score
+		gc.setFill(Color.WHITE);
+		gc.setFont(new Font(30));
+		gc.fillText("Score: " + GameLogic.getScore(), 20, 40);
+
+		// Draw Health Bar
+
+		double healthPercentage = playerShip.getHp() / 5.0; // Assuming max health is 5
+		double currentHealthWidth = healthBarWidth * healthPercentage;
+		// System.out.println(currentHealthWidth);
+		gc.setFill(Color.GRAY); // Background bar
+		gc.fillRect(20, GameLogic.getHeight() - 40, healthBarWidth, 20);
+
+		gc.setFill(Color.LIMEGREEN); // Health bar fill
+		gc.fillRect(20, GameLogic.getHeight() - 40, currentHealthWidth, 20);
+
+		gc.setStroke(Color.BLACK); // Border
+		gc.strokeRect(20, GameLogic.getHeight() - 40, healthBarWidth, 20);
+
+		// Draw "Pause" screen overlay
 		if (isPaused) {
 			gc.setFill(Color.rgb(0, 0, 0, 0.4)); // Semi-transparent black overlay
 			gc.fillRect(0, 0, GameLogic.getWidth(), GameLogic.getHeight());

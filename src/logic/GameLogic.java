@@ -10,8 +10,11 @@ import java.util.TimerTask;
 import application.GameApp;
 import base.component.BaseComponent;
 import base.component.Enemy;
+import base.component.EventSpawn;
+import base.component.HoldingMoveSet;
 import base.component.SpawnPos;
 import component.Bullet;
+import component.Meteor;
 import component.PlayerShip;
 import gui.GameScreen;
 import javafx.animation.KeyFrame;
@@ -24,6 +27,7 @@ public class GameLogic {
 	private static final int HEIGHT = 900;
 
 	private static int score = 0;
+	private static int level = 1;
 
 	private static List<Bullet> bullets = new ArrayList<>();
 	private static List<Enemy> enemies = new ArrayList<>();
@@ -36,6 +40,7 @@ public class GameLogic {
 		GameLogic.bullets.clear();
 		GameLogic.enemies.clear();
 		GameLogic.isSpawning = false;
+		GameLogic.level = 1;
 	}
 
 	public static void addBullet(Bullet bullet) {
@@ -61,18 +66,66 @@ public class GameLogic {
 			isSpawning = true;
 			System.out.println("progress Level");
 
-			/////////////////////level control////////////////////////
+			// RANDOM EVENT
+			EventSpawn event = GameUtil.getRandomEventSpawn();
+
+			///////////////////// level control////////////////////////
 			int randomDelay = random.nextInt(3);
 			int randomDuration = random.nextInt(4) + 2;
-			SpawnPos randomSpawnPos = SpawnPosUtil.getRandomSpawnPos();
-			
-			addAllEnemyByLine(Spawner.spawnSquare(randomDelay, randomSpawnPos , randomDuration));
-			System.out.println("deley : " + randomDelay);
-			System.out.println("duration : " + randomDuration);
-			System.out.println("Spawn from : " + randomSpawnPos);
-			
-			
-			
+			SpawnPos randomSpawnPos = GameUtil.getRandomSpawnPos();
+			HoldingMoveSet randomHolding = GameUtil.getRandomHoldingMoveSet();
+
+//			Rain : enemies.addAll(Spawner.spawnRainMeteor());
+//			Square : addAllEnemyByLine(Spawner.spawnTriangle(randomSpawnPos, randomDuration, randomHolding));
+//			Triangle : addAllEnemyByLine(Spawner.spawnSquare(randomDelay, randomSpawnPos, randomDuration, randomHolding));
+			System.out.println("=======  LEVEL " + level + "  =======");
+			level++;
+			switch (event) {
+			case TRIANGLE:
+				System.out.println("Event : " + event);
+				System.out.println("Deley : " + randomDelay);
+				System.out.println("Duration : " + randomDuration);
+				System.out.println("Spawn from : " + randomSpawnPos);
+				System.out.println("Holding set : " + randomHolding);
+				System.out.println("number of chicken : " + enemies.size());
+				System.out.println("=========================");
+				System.out.println("");
+				addAllEnemyByLine(Spawner.spawnTriangle(randomSpawnPos, randomDuration, randomHolding));
+				break;
+			case SQUARE:
+				System.out.println("Event : " + event);
+				System.out.println("Deley : " + randomDelay);
+				System.out.println("Duration : " + randomDuration);
+				System.out.println("Spawn from : " + randomSpawnPos);
+				System.out.println("Holding set : " + randomHolding);
+				System.out.println("number of chicken : " + enemies.size());
+				System.out.println("=========================");
+				System.out.println("");
+				addAllEnemyByLine(Spawner.spawnSquare(randomDelay, randomSpawnPos, randomDuration, randomHolding));
+				break;
+			case RAIN:
+				System.out.println("Event : " + event);
+				System.out.println("Deley : " + randomDelay);
+				System.out.println("Duration : " + randomDuration);
+				System.out.println("Spawn from : " + randomSpawnPos);
+				System.out.println("Holding set : " + randomHolding);
+				System.out.println("number of chicken : " + enemies.size());
+				System.out.println("=========================");
+				System.out.println("");
+				enemies.addAll(Spawner.spawnRainMeteor());
+				break;
+
+			default:
+				System.out.println("Event : " + event);
+//				System.out.println("Deley : " + randomDelay);
+//				System.out.println("Duration : " + randomDuration);
+//				System.out.println("Spawn from : " + randomSpawnPos);
+//				System.out.println("Holding set : " + randomHolding);
+				System.out.println("number of meteor : " + enemies.size());
+				System.out.println("=========================");
+				break;
+			}
+
 			//////////////////////////////////////////////////////////
 			Thread delayTime = new Thread(new Runnable() {
 
@@ -82,7 +135,6 @@ public class GameLogic {
 						Thread.sleep(3000);
 						isSpawning = false;
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -107,8 +159,17 @@ public class GameLogic {
 	}
 
 	public static void updateEnemies() {
-//		System.out.println(enemies.size());
-		enemies.removeIf(enemy -> !enemy.update()); // Remove enemies off-screen
+		enemies.removeIf(enemy -> {
+			boolean tmp = !enemy.update();
+			if (tmp) {
+				GameLogic.setScore(GameLogic.getScore() - 1);
+				if (GameLogic.getScore() <= -1) {
+					System.out.println("game over");
+					GameLogic.setGameOver(true);
+				}
+			}
+			return tmp;
+		});
 	}
 
 	public static void checkBulletCollisions() {
@@ -141,6 +202,7 @@ public class GameLogic {
 			if (isColliding(GameScreen.getPlayerShip(), enemy)) {
 				enemy.setHp(enemy.getHp() - 5);
 				GameScreen.getPlayerShip().setHp(GameScreen.getPlayerShip().getHp() - 1); // decrease hp 1.
+				System.out.println("Remain HP : " + GameScreen.getPlayerShip().getHp());
 			}
 
 			if (GameScreen.getPlayerShip().getHp() <= 0) {
