@@ -18,7 +18,7 @@ public class GameScreen {
 	private Pane pane;
 	private Canvas canvas;
 	private GraphicsContext gc;
-	private PlayerShip playerShip;
+	public static PlayerShip playerShip;
 	private AnimationTimer gameLoop;
 
 	public static boolean isPaused = false;
@@ -51,6 +51,11 @@ public class GameScreen {
 			public void handle(long now) {
 				update();
 				render();
+				if(GameLogic.isGameOver()) {
+					gameApp.showGameOverScreen();
+					gameLoop.stop();
+					GameLogic.setGameOver(false);
+				}
 			}
 		};
 		gameLoop.start();
@@ -63,13 +68,13 @@ public class GameScreen {
 		scene.setOnKeyPressed(event -> {
 			if (event.getCode().toString().equals("ESCAPE")) {
 				togglePause();
-			} else if (!isPaused) {
+			} else if (!isPaused || GameLogic.isGameOver()) {
 				playerShip.handleKeyPress(event.getCode());
 			}
 		});
 
 		scene.setOnKeyReleased(event -> {
-			if (!isPaused) {
+			if (!isPaused || GameLogic.isGameOver()) {
 				playerShip.handleKeyRelease(event.getCode());
 			}
 		});
@@ -84,9 +89,9 @@ public class GameScreen {
 		playerShip.update();
 		GameLogic.updateBullets();
 		GameLogic.updateEnemies();
-		GameLogic.checkCollisions();
+		GameLogic.checkBulletCollisions();
+		GameLogic.checkPlayerCollisions();
 		GameLogic.updateEndLevel();
-		
 	}
 
 	private void render() {
@@ -102,6 +107,10 @@ public class GameScreen {
 		for (Enemy enemy : GameLogic.getEnemies()) {
 			enemy.render(gc);
 		}
+		
+		gc.setFill(Color.WHITE);
+	    gc.setFont(new Font(30));
+	    gc.fillText("Score: " + GameLogic.getScore(), 20, 40);
 
 		if (isPaused) {
 			gc.setFill(Color.rgb(0, 0, 0, 0.4)); // Semi-transparent black overlay
@@ -116,9 +125,6 @@ public class GameScreen {
 	private void togglePause() {
 		isPaused = !isPaused;
 		resumeButton.setVisible(isPaused);
-		if(isPaused==false) {
-			GameLogic.spawnThread.interrupt();
-		}
 	}
 
 	private void resumeGame() {
@@ -128,5 +134,9 @@ public class GameScreen {
 
 	public Pane getPane() {
 		return pane;
+	}
+
+	public static PlayerShip getPlayerShip() {
+		return playerShip;
 	}
 }
