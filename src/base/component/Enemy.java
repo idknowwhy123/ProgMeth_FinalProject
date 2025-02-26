@@ -11,15 +11,16 @@ public abstract class Enemy extends BaseComponent{
     private int duration;//Ms
     private EnemyState state;
     private SpawnPos spawnFrom;
+    private int GiveScore;
     
-    public Enemy(double x, double y, double tagPointX, double tagPointY,SpawnPos pos,Image enemyImage) {
+    public Enemy(int give, double x, double y, double tagPointX, double tagPointY,SpawnPos pos,Image enemyImage) {
     	super(x, y);
     	this.tagPointX = tagPointX;
     	this.tagPointY = tagPointY;
     	this.enemyImage = enemyImage;
-    	this.duration = 1000;
     	state = EnemyState.SPAWN;
     	spawnFrom = pos;
+    	this.GiveScore = give;
     }
 
     public boolean update() {
@@ -69,6 +70,18 @@ public abstract class Enemy extends BaseComponent{
 			return true;
 		}
 		return false;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+
+	public int getGiveScore() {
+		return GiveScore;
 	}
     
 }
