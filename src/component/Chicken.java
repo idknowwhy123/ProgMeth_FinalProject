@@ -6,13 +6,11 @@ import base.component.SpawnPos;
 import javafx.scene.image.Image;
 
 public class Chicken extends Enemy {
-	private static final double SPEED = 1;
-	private double grad;
-	private double intercept;
+	private double speed = 1;
 	private HoldingMoveSet holding;
 
-	public Chicken(double x, double y, double tagX, double tagY, SpawnPos pos, int duration, HoldingMoveSet holding) {
-		super(2, x, y, tagX, tagY, pos, new Image("Banana.png"));
+	public Chicken(double x, double y, double tagX, double tagY, int duration, HoldingMoveSet holding) {
+		super(2, x, y, tagX, tagY,5, new Image("Banana.png"));
 		this.setHp(3);
 		this.setDuration(duration * 1000);
 		this.holding = holding;
@@ -20,15 +18,6 @@ public class Chicken extends Enemy {
 			this.setDuration(1000);
 		}
 
-		/////// calculate part for spawn move
-		this.grad = (tagY - y) / (tagX - x);
-
-		if (pos == SpawnPos.LEFT || pos == SpawnPos.RIGHT) {
-			intercept = tagY - grad * tagX;
-		} else if (pos == SpawnPos.UP) {
-			grad = 999999;
-			intercept = tagY - grad * tagX;
-		}
 	}
 
 	@Override
@@ -42,7 +31,7 @@ public class Chicken extends Enemy {
 			break;
 		case DESPAWN:
 			moveSet();
-			this.setTagPointY(getTagPointY() + SPEED);
+			this.setTagPointY(getTagPointY() + speed);
 			moveDown();
 			break;
 		}
@@ -50,22 +39,18 @@ public class Chicken extends Enemy {
 
 	@Override
 	public void moveTo() {
-		switch (this.getSpawnFrom()) {
-		case RIGHT:
-			setX(getX() - SPEED);
-			setY(grad * getX() + intercept);
-			break;
-		case LEFT:
-			setX(getX() + SPEED);
-			setY(grad * getX() + intercept);
-			break;
-		case UP:
-			setY(getY() + SPEED);
-			break;
-		default:
-			break;
-		}
+		double dx = this.getTagPointX() - this.getX();
+		double dy = this.getTagPointY() - this.getY();
+		double distance = Math.sqrt(dx * dx + dy * dy);
 
+		if (distance > speed) { // Move only if not at the target
+			this.setX(this.getX() + dx / distance * speed);
+			this.setY(this.getY() + dy / distance * speed);
+		}
+//        else { // Snap to target when close enough
+//            x = tagX;
+//            y = tagY;
+//        }
 	}
 
 	@Override
@@ -99,7 +84,7 @@ public class Chicken extends Enemy {
 
 	@Override
 	public void moveDown() {
-		setY(getY() + SPEED);
+		setY(getY() + speed);
 	}
 
 }

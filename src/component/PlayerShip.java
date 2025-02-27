@@ -1,6 +1,7 @@
 package component;
 
 import base.component.BaseComponent;
+import gui.GameScreen;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -11,6 +12,7 @@ public class PlayerShip extends BaseComponent {
 	private boolean left, right, up, down;
 	private long lastShotTime = 0;
 	private Image shipImage;
+	private boolean canTakeDmg = true;
 
 	private static final long SHOOT_INTERVAL = 200;
 	private static final int SPEED = 5;
@@ -18,7 +20,7 @@ public class PlayerShip extends BaseComponent {
 	public PlayerShip(double x, double y) {
 		super(x, y);
 		this.shipImage = new Image("MonkeyShip.png");
-		this.setHp(5);
+		this.setHp(100);
 	}
 
 	public void update() {
@@ -42,7 +44,11 @@ public class PlayerShip extends BaseComponent {
 	}
 
 	private void shoot() {
-		GameLogic.addBullet(new Bullet(getX() + 20, getY()));
+		GameLogic.addBullet(new Bullet(getX() + 20, getY(), 5, 1));
+	}
+	
+	private void laser() {
+		GameLogic.addBullet(new Bullet(getX() + 20, getY(), 5, 1000));
 	}
 
 	public void handleKeyPress(KeyCode key) {
@@ -54,6 +60,10 @@ public class PlayerShip extends BaseComponent {
 			up = true;
 		if (key == KeyCode.S)
 			down = true;
+		if (key == KeyCode.SPACE) {
+			laser();
+		}
+			
 	}
 
 	public void handleKeyRelease(KeyCode key) {
@@ -65,5 +75,33 @@ public class PlayerShip extends BaseComponent {
 			up = false;
 		if (key == KeyCode.S)
 			down = false;
+	}
+	
+	public void takeDmg(int take) {
+		this.setHp(this.getHp()-take);
+		Thread waitTime = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(200);
+					
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				GameScreen.getPlayerShip().setCanTakeDmg(true);
+			}
+		});
+		waitTime.start();
+		
+	}
+
+	public boolean isCanTakeDmg() {
+		return canTakeDmg;
+	}
+
+	public void setCanTakeDmg(boolean canTakeDmg) {
+		this.canTakeDmg = canTakeDmg;
 	}
 }

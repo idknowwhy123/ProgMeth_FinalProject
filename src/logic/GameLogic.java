@@ -7,19 +7,17 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import application.GameApp;
 import base.component.BaseComponent;
+import base.component.Breakable;
 import base.component.Enemy;
 import base.component.EventSpawn;
 import base.component.HoldingMoveSet;
 import base.component.SpawnPos;
+import component.Boss;
 import component.Bullet;
-import component.Meteor;
-import component.PlayerShip;
+import component.EnemyBullet;
 import gui.GameScreen;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
+import javafx.scene.image.Image;
 
 public class GameLogic {
 	static Random random = new Random();
@@ -31,6 +29,8 @@ public class GameLogic {
 
 	private static List<Bullet> bullets = new ArrayList<>();
 	private static List<Enemy> enemies = new ArrayList<>();
+	private static Enemy boss;
+//	private static List<EnemyBullet> enemyBullets = new ArrayList<>();
 
 	private static boolean gameOver = false;
 
@@ -55,15 +55,47 @@ public class GameLogic {
 	public static void addEnemy(Enemy enemy) {
 		enemies.add(enemy);
 	}
+	
+//	Rain : enemies.addAll(Spawner.spawnRainMeteor());
+//	Square : addAllEnemyByLine(Spawner.spawnTriangle(randomSpawnPos, randomDuration, randomHolding));
+//	Triangle : addAllEnemyByLine(Spawner.spawnSquare(randomDelay, randomSpawnPos, randomDuration, randomHolding));
 
 	public static boolean inLevel = false;
 	public static boolean isSpawning = false;
 
 	public static void spawnLevel() {
 
-		if (inLevel == false && isSpawning == false) {
+		if (inLevel == false && isSpawning == false && GameLogic.getLevel() == 5) {
 			inLevel = true;
 			isSpawning = true;
+			
+			System.out.println("progress Level");
+			System.out.println("=======  BOSS LEVEL " + level + "  =======");
+			System.out.println("Boss health : " + GameLogic.getLevel() * 100);
+			System.out.println("Score : " + GameLogic.getLevel() * 100);
+			System.out.println("==============================");
+
+			boss = new Boss(level * 100, 800, 200, new Image("Banana.png"));
+			enemies.add(boss);
+			level++;
+//////////////////////////////////////////////////////////
+			Thread delayTime = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(3000);
+						isSpawning = false;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			delayTime.run();
+		} else if (inLevel == false && isSpawning == false) {
+			inLevel = true;
+			isSpawning = true;
+			
 			System.out.println("progress Level");
 
 			// RANDOM EVENT
@@ -75,11 +107,8 @@ public class GameLogic {
 			SpawnPos randomSpawnPos = GameUtil.getRandomSpawnPos();
 			HoldingMoveSet randomHolding = GameUtil.getRandomHoldingMoveSet();
 
-//			Rain : enemies.addAll(Spawner.spawnRainMeteor());
-//			Square : addAllEnemyByLine(Spawner.spawnTriangle(randomSpawnPos, randomDuration, randomHolding));
-//			Triangle : addAllEnemyByLine(Spawner.spawnSquare(randomDelay, randomSpawnPos, randomDuration, randomHolding));
 			System.out.println("=======  LEVEL " + level + "  =======");
-			level++;
+			
 			switch (event) {
 			case TRIANGLE:
 				System.out.println("Event : " + event);
@@ -117,15 +146,11 @@ public class GameLogic {
 
 			default:
 				System.out.println("Event : " + event);
-//				System.out.println("Deley : " + randomDelay);
-//				System.out.println("Duration : " + randomDuration);
-//				System.out.println("Spawn from : " + randomSpawnPos);
-//				System.out.println("Holding set : " + randomHolding);
 				System.out.println("number of meteor : " + enemies.size());
 				System.out.println("=========================");
 				break;
 			}
-
+			level++;
 			//////////////////////////////////////////////////////////
 			Thread delayTime = new Thread(new Runnable() {
 
@@ -159,14 +184,16 @@ public class GameLogic {
 	}
 
 	public static void updateEnemies() {
+
 		enemies.removeIf(enemy -> {
 			boolean tmp = !enemy.update();
-			if (tmp) {
+			if (tmp && !(enemy instanceof EnemyBullet)) {
 				GameLogic.setScore(GameLogic.getScore() - 1);
 				if (GameLogic.getScore() <= -1) {
 					System.out.println("game over");
 					GameLogic.setGameOver(true);
 				}
+				System.out.println(tmp);
 			}
 			return tmp;
 		});
@@ -184,11 +211,13 @@ public class GameLogic {
 				if (isColliding(bullet, enemy)) {
 					bulletIterator.remove(); // Remove bullet
 					enemy.setHp(enemy.getHp() - bullet.getDmg());
+					
 					break; // Move to the next bullet
 				}
 				if (enemy.getHp() <= 0) {
 					enemyIterator.remove(); // Remove chicken
 					GameLogic.setScore(getScore() + enemy.getGiveScore());
+					GameLogic.setBoss(null);
 				}
 			}
 		}
@@ -199,9 +228,15 @@ public class GameLogic {
 		while (enemyIterator.hasNext()) {
 			Enemy enemy = enemyIterator.next();
 
-			if (isColliding(GameScreen.getPlayerShip(), enemy)) {
-				enemy.setHp(enemy.getHp() - 5);
-				GameScreen.getPlayerShip().setHp(GameScreen.getPlayerShip().getHp() - 1); // decrease hp 1.
+			if (isColliding(GameScreen.getPlayerShip(), enemy) && GameScreen.getPlayerShip().isCanTakeDmg()) {
+				GameScreen.getPlayerShip().setCanTakeDmg(false);
+				if (enemy instanceof Breakable) {
+					enemy.setHp(-1);
+				} else {
+					enemy.setHp(enemy.getHp() - 5);
+				}
+
+				GameScreen.getPlayerShip().takeDmg(enemy.getImpactDmg());// decrease hp
 				System.out.println("Remain HP : " + GameScreen.getPlayerShip().getHp());
 			}
 
@@ -220,14 +255,6 @@ public class GameLogic {
 	private static boolean isColliding(BaseComponent a, BaseComponent b) {
 		return a.getX() < b.getX() + 50 && a.getX() + 50 > b.getX() && a.getY() < b.getY() + 50
 				&& a.getY() + 50 > b.getY();
-	}
-
-	private static boolean isInScreen(BaseComponent bc) {
-		if (bc.getX() >= 0 && bc.getX() <= GameLogic.getWidth() && bc.getY() >= 0
-				&& bc.getY() <= GameLogic.getHeight()) {
-			return true;
-		}
-		return false;
 	}
 
 	public static void updateEndLevel() {
@@ -265,12 +292,29 @@ public class GameLogic {
 		GameLogic.score = score;
 	}
 
+	public static int getLevel() {
+		return level;
+	}
+
+	public static void setLevel(int level) {
+		GameLogic.level = level;
+	}
+
 	public static boolean isGameOver() {
 		return gameOver;
 	}
 
 	public static void setGameOver(boolean gameOver) {
 		GameLogic.gameOver = gameOver;
+	}
+
+	public static Enemy getBoss() {
+		if(boss == null)return null;
+		return boss;
+	}
+
+	public static void setBoss(Enemy boss) {
+		GameLogic.boss = boss;
 	}
 
 }

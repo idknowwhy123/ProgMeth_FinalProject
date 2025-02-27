@@ -4,48 +4,64 @@ import java.util.ArrayList;
 
 import base.component.BaseComponent;
 import base.component.Breakable;
+import base.component.Enemy;
+import base.component.EnemyState;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import logic.GameLogic;
 
-public class Bullet extends BaseComponent implements Breakable{
+public class EnemyBullet extends Enemy implements Breakable{
 	private ArrayList<Image> bulletImage;
 	private int imageIndex = 0; // Track current animation frame
 	private int frameCounter = 0; // Track when to switch frames
 	private static final int FRAME_DELAY = 5; // Change image every 5 updates
-	private int dmg;
 	private double speed;
 
-	public Bullet(double x, double y, double speed, int damage) {
-		super(x, y);
-		this.dmg = damage;
+	public EnemyBullet(double x, double y, double speed, int damage) {
+		super(10, x, y, speed, speed, 10, new Image("Banana.png"));
 		this.setSpeed(speed);
+		this.setHp(100);
 		bulletImage = new ArrayList<>();
+		this.setState(EnemyState.DESPAWN);
 		for (int i = 1; i <= 4; i++) {
 			this.bulletImage.add(new Image("MainWeapon" + i + ".png"));
 		}
 	}
 
+	@Override
 	public boolean update() {
-		this.setY(this.getY() - speed); // Move up
+		this.setY(this.getY() + speed); // Move down
 		
 		frameCounter++;
 		if (frameCounter >= FRAME_DELAY) {
 			frameCounter = 0;
 			imageIndex = (imageIndex + 1) % bulletImage.size(); // Loop through images
 		}
-		return getY() > 0;
+		return getY() < GameLogic.getHeight();
 	}
 
 	public void render(GraphicsContext gc) {
 		gc.drawImage(bulletImage.get(imageIndex), getX(), getY(), 55, 55);
 	}
 
-	public int getDmg() {
-		return dmg;
+	@Override
+	public void move() {
+		
 	}
 
-	public void setDmg(int dmg) {
-		this.dmg = dmg;
+	@Override
+	public void moveTo() {
+		
+	}
+
+	@Override
+	public void moveSet() {
+		
+	}
+
+	@Override
+	public void moveDown() {
+		
 	}
 
 	public double getSpeed() {

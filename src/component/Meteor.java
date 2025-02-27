@@ -10,7 +10,7 @@ public class Meteor extends Enemy {
 	private double drift = Math.random() * 2;
 
 	public Meteor(double x, double y) {
-		super(5, x, y, 0, 0, null, new Image("Banana.png")); // Size of meteor
+		super(5, x, y, 0, 0,30, new Image("Banana.png")); // Size of meteor
 	}
 	
 	public boolean update() {

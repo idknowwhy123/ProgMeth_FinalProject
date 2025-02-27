@@ -6,27 +6,28 @@ import component.PlayerShip;
 import gui.GameScreen;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import logic.GameLogic;
 
 public abstract class Enemy extends BaseComponent {
 	private Image enemyImage;
 	private double tagPointX;
 	private double tagPointY;
-	private int duration;// Ms
+	private int duration;
 	private EnemyState state;
-	private SpawnPos spawnFrom;
 	private int GiveScore;
+	private int impactDmg;
 
 	private Random random = new Random();
 
-	public Enemy(int give, double x, double y, double tagPointX, double tagPointY, SpawnPos pos, Image enemyImage) {
+	public Enemy(int give, double x, double y, double tagPointX, double tagPointY, int impact, Image enemyImage) {
 		super(x, y);
 		this.tagPointX = tagPointX;
 		this.tagPointY = tagPointY;
 		this.enemyImage = enemyImage;
 		state = EnemyState.SPAWN;
-		spawnFrom = pos;
 		this.GiveScore = give;
+		this.setImpactDmg(impact);
 	}
 	
 	
@@ -64,7 +65,18 @@ public abstract class Enemy extends BaseComponent {
 
 	public void render(GraphicsContext gc) {
 		gc.drawImage(enemyImage, getX(), getY(), 50, 50);
+		
+		//HIT BOX
+		gc.setStroke(Color.RED); // Set border color
+	    gc.setLineWidth(2); // Set border thickness
+	    gc.strokeRect( getX(), getY(), 50, 50); // Draw rectangle
 	}
+
+	public Image getEnemyImage() {
+		return enemyImage;
+	}
+
+
 
 	public EnemyState getState() {
 		return state;
@@ -72,14 +84,6 @@ public abstract class Enemy extends BaseComponent {
 
 	public void setState(EnemyState state) {
 		this.state = state;
-	}
-
-	public SpawnPos getSpawnFrom() {
-		return spawnFrom;
-	}
-
-	public void setSpawnFrom(SpawnPos spawnFrom) {
-		this.spawnFrom = spawnFrom;
 	}
 
 	public boolean isNear() {
@@ -187,6 +191,18 @@ public abstract class Enemy extends BaseComponent {
 	        this.setY(this.getTagPointY() + (Math.random() * jumpDistance * 2 - jumpDistance));
 	        lastJumpTime = currentTime;
 	    }
+	}
+
+
+
+	public int getImpactDmg() {
+		return impactDmg;
+	}
+
+
+
+	public void setImpactDmg(int impactDmg) {
+		this.impactDmg = impactDmg;
 	}
 
 

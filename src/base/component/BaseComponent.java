@@ -33,4 +33,8 @@ public class BaseComponent {
 		this.hp = hp;
 	}
 	
+	public void getHp(int hp) {
+		this.hp = hp;
+	}
+	
 }

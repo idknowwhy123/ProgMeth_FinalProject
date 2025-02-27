@@ -89,10 +89,12 @@ public class GameScreen {
 		playerShip.update();
 		GameLogic.updateBullets();
 		GameLogic.updateEnemies();
+//		GameLogic.updateEnemyBullets();
 		GameLogic.checkBulletCollisions();
 		GameLogic.checkPlayerCollisions();
-		
 		GameLogic.updateEndLevel();
+
+//		System.out.println(GameLogic.getEnemies().size());
 	}
 
 	private double healthBarWidth = 200; // Full width of health bar
@@ -116,11 +118,39 @@ public class GameScreen {
 		gc.setFont(new Font(30));
 		gc.fillText("Score: " + GameLogic.getScore(), 20, 40);
 
-		// Draw Health Bar
+//		Boss hp bar
+		if (GameLogic.getBoss() != null) {
 
-		double healthPercentage = playerShip.getHp() / 5.0; // Assuming max health is 5
+			// Boss HP Bar
+			double bossMaxHp = (GameLogic.getLevel() - 1) * 100.0; // Get max HP
+			double bossHp = GameLogic.getBoss().getHp(); // Get current HP
+			double bossHealthPercentage = bossHp / bossMaxHp; // Calculate percentage
+			double bossHealthWidth = GameLogic.getWidth() * 0.6 * bossHealthPercentage; // 60% of screen width
+
+			// Background of HP bar
+			gc.setFill(Color.DARKGRAY);
+			gc.fillRect(GameLogic.getWidth() * 0.2, 20, GameLogic.getWidth() * 0.6, 20);
+
+			// HP fill
+			gc.setFill(Color.RED);
+			gc.fillRect(GameLogic.getWidth() * 0.2, 20, bossHealthWidth, 20);
+
+			// Border
+			gc.setStroke(Color.BLACK);
+			gc.strokeRect(GameLogic.getWidth() * 0.2, 20, GameLogic.getWidth() * 0.6, 20);
+
+			// Display Boss HP text
+			gc.setFill(Color.WHITE);
+			gc.setFont(new Font(20));
+			gc.fillText("BOSS HP: " + (int) bossHp + " / " + (int) bossMaxHp, GameLogic.getWidth() / 2 - 60, 50);
+		}
+
+		// Draw Health Bar
+		double healthPercentage = playerShip.getHp() / 100.0; // Assuming max health is 100
 		double currentHealthWidth = healthBarWidth * healthPercentage;
-		// System.out.println(currentHealthWidth);
+
+		gc.fillText("" + GameScreen.getPlayerShip().getHp(), 20, GameLogic.getHeight() - 40);
+
 		gc.setFill(Color.GRAY); // Background bar
 		gc.fillRect(20, GameLogic.getHeight() - 40, healthBarWidth, 20);
 

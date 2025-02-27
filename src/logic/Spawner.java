@@ -57,7 +57,7 @@ public class Spawner {
 						(i * 80) - paddingUp + (signy * delayByLine * 140), // spawn point
 						(j * 140), // holding point
 						(i * 80), // holding point
-						pos, duration, holding));
+						duration, holding));
 			}
 			delayByLine += delay;
 			squareChickens.add(lineChickens);
@@ -99,7 +99,7 @@ public class Spawner {
 						(i * 50) - paddingUp + (signy * delayByLine * 70), // spawn point
 						(j * 70) + paddingTriangle * 35, // holding point
 						(i * 50), // holding point
-						pos, duration, holding));
+						duration, holding));
 
 			}
 			paddingTriangle++;
@@ -118,7 +118,7 @@ public class Spawner {
 								(i * 50) - paddingUp + (signy * delayByLine * 70), // spawn point
 								(j * 70) + paddingTriangle * 35 + 435, // holding point
 								(i * 50), // holding point
-								pos, duration, holding));
+								duration, holding));
 			}
 			paddingTriangle++;
 			delayByLine += 1;
@@ -136,7 +136,7 @@ public class Spawner {
 								(i * 50) - paddingUp + (signy * delayByLine * 70), // spawn point
 								(j * 70) + paddingTriangle * 35 + 1070, // holding point
 								(i * 50), // holding point
-								pos, duration, holding));
+								duration, holding));
 			}
 			paddingTriangle++;
 			delayByLine += 1;
